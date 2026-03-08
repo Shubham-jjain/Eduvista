@@ -35,19 +35,21 @@ const HomePage = () => {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-7xl mx-auto px-6 py-20 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#111827] mb-4">
-          Learn without limits
-        </h1>
-        <p className="text-lg text-[#6B7280] max-w-2xl mx-auto mb-8">
-          Build skills with courses from expert instructors. Start your learning journey today with hundreds of courses across every topic.
-        </p>
-        <a
-          href="/login"
-          className="inline-flex items-center gap-2 bg-[#2563EB] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors"
-        >
-          Get Started <ArrowRight className="w-5 h-5" />
-        </a>
+      <section className="bg-[#1E3A8A] py-20 text-center">
+        <div className="max-w-7xl mx-auto px-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Learn without limits
+          </h1>
+          <p className="text-lg text-[#BFDBFE] max-w-2xl mx-auto mb-8">
+            Build skills with courses from expert instructors. Start your learning journey today with hundreds of courses across every topic.
+          </p>
+          <a
+            href="/login"
+            className="inline-flex items-center gap-2 bg-white text-[#1E3A8A] px-6 py-3 rounded-lg font-medium hover:bg-[#DBEAFE] transition-colors"
+          >
+            Get Started <ArrowRight className="w-5 h-5" />
+          </a>
+        </div>
       </section>
 
       {/* Stats */}
