@@ -1,5 +1,7 @@
+node_modules/
+.env
+
 frontend/CLAUDE.md
 backend/CLAUDE.md
-backend/node_modules
 Spec.md
 CLAUDE.md
