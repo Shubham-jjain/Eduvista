@@ -4,6 +4,11 @@ import { Mail, Lock, Eye, EyeOff, BookOpen } from 'lucide-react'
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    // TODO: handle login logic
+  }
+
   return (
     <div className="min-h-screen bg-white flex">
       {/* Left Panel */}
@@ -37,7 +42,7 @@ const LoginPage = () => {
             </a>
           </p>
 
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={handleSubmit}>
             {/* Email */}
             <div className="mb-5">
               <label className="block text-sm font-medium text-[#111827] mb-1.5">
