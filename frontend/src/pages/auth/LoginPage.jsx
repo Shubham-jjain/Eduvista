@@ -1,12 +1,40 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, BookOpen } from 'lucide-react'
+import { setUser, setLoading, setError, clearError } from '../../features/auth/authSlice'
+import API from '../../api/axios'
 
 const LoginPage = () => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSubmit = (e) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { loading, error, user } = useSelector((state) => state.auth)
+
+  useEffect(() => {
+    if (user) {
+      navigate('/')
+    }
+  }, [user, navigate])
+
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // TODO: handle login logic
+    dispatch(setLoading(true))
+    try {
+      const response = await API.post('/auth/login', { email, password })
+      dispatch(setUser(response.data.user))
+    } catch (error) {
+      dispatch(setError(error.response?.data?.message || 'Login failed'))
+    } finally {
+      dispatch(setLoading(false))
+    }
   }
 
   return (
@@ -37,10 +65,16 @@ const LoginPage = () => {
           <h2 className="text-2xl font-bold text-[#111827] mb-1">Sign in to your account</h2>
           <p className="text-[#6B7280] mb-8">
             Don't have an account?{' '}
-            <a href="/register" className="text-[#2563EB] font-medium hover:underline">
+            <Link to="/register" className="text-[#2563EB] font-medium hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             {/* Email */}
@@ -52,7 +86,10 @@ const LoginPage = () => {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
+                  required
                   className="w-full pl-11 pr-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                 />
               </div>
@@ -72,7 +109,10 @@ const LoginPage = () => {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  required
                   className="w-full pl-11 pr-11 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                 />
                 <button
@@ -100,9 +140,10 @@ const LoginPage = () => {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors cursor-pointer"
+              disabled={loading}
+              className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign in
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
         </div>

@@ -1,4 +1,5 @@
 import { BookOpen, Users, Award, PlayCircle, ArrowRight } from 'lucide-react'
+import Navbar from '../components/Navbar'
 
 const featuredCourses = [
   { id: 1, title: 'Introduction to Web Development', instructor: 'Dr. Sarah Chen', category: 'Development', students: 1240, rating: 4.8 },
@@ -18,21 +19,7 @@ const categories = ['Development', 'Data Science', 'Design', 'Marketing', 'Busin
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="border-b border-[#E5E7EB]">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-7 h-7 text-[#1E3A8A]" />
-            <span className="text-xl font-bold text-[#1E3A8A]">EduVista</span>
-          </div>
-          <a
-            href="/login"
-            className="bg-[#2563EB] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors text-sm"
-          >
-            Login
-          </a>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero */}
       <section className="bg-[#1E3A8A] py-20 text-center">
