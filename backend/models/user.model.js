@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Schema for users with name, email, password, role, profile, and enrollment data
 const userSchema = new mongoose.Schema(
     {
         name: {

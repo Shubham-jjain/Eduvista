@@ -5,6 +5,7 @@ import User from "../models/user.model.js";
 
 const SALT_ROUNDS = 10;
 
+// Registers a new user, hashes password, sets JWT cookie
 export const register = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -53,6 +54,7 @@ export const register = async (req, res) => {
     }
 };
 
+// Authenticates user with email/password, sets JWT cookie
 export const login = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -101,6 +103,7 @@ export const login = async (req, res) => {
     }
 };
 
+// Clears the auth cookie to log user out
 export const logout = (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,

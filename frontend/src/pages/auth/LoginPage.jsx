@@ -5,6 +5,7 @@ import { Mail, Lock, Eye, EyeOff, BookOpen } from 'lucide-react'
 import { setUser, setLoading, setError, clearError } from '../../features/auth/authSlice'
 import API from '../../api/axios'
 
+// Login form with email/password authentication and Redux integration
 const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,6 +25,7 @@ const LoginPage = () => {
     dispatch(clearError())
   }, [dispatch])
 
+  // Submits login credentials and dispatches user to Redux store
   const handleSubmit = async (e) => {
     e.preventDefault()
     dispatch(setLoading(true))

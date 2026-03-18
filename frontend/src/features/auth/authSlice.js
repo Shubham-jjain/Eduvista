@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Redux slice managing auth state: user, loading, and error
 const authSlice = createSlice({
     name: "auth",
     initialState: {

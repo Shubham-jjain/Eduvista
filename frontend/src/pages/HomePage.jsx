@@ -1,6 +1,9 @@
 import { BookOpen, Users, Award, PlayCircle, ArrowRight } from 'lucide-react'
+import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 
+// Static featured course data for homepage display
 const featuredCourses = [
   { id: 1, title: 'Introduction to Web Development', instructor: 'Dr. Sarah Chen', category: 'Development', students: 1240, rating: 4.8 },
   { id: 2, title: 'Data Science Fundamentals', instructor: 'Prof. James Miller', category: 'Data Science', students: 980, rating: 4.7 },
@@ -8,15 +11,20 @@ const featuredCourses = [
   { id: 4, title: 'Digital Marketing Strategy', instructor: 'Michael Park', category: 'Marketing', students: 1102, rating: 4.6 },
 ]
 
+// Platform statistics shown in the hero section
 const stats = [
   { icon: PlayCircle, label: 'Courses', value: '500+' },
   { icon: Users, label: 'Students', value: '25,000+' },
   { icon: Award, label: 'Instructors', value: '120+' },
 ]
 
+// Course category list for the browse section
 const categories = ['Development', 'Data Science', 'Design', 'Marketing', 'Business', 'Photography']
 
+// Landing page with hero, stats, categories, and featured courses
 const HomePage = () => {
+  const { user } = useSelector((state) => state.auth)
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -30,12 +38,21 @@ const HomePage = () => {
           <p className="text-lg text-[#BFDBFE] max-w-2xl mx-auto mb-8">
             Build skills with courses from expert instructors. Start your learning journey today with hundreds of courses across every topic.
           </p>
-          <a
-            href="/login"
-            className="inline-flex items-center gap-2 bg-white text-[#1E3A8A] px-6 py-3 rounded-lg font-medium hover:bg-[#DBEAFE] transition-colors"
-          >
-            Get Started <ArrowRight className="w-5 h-5" />
-          </a>
+          {user ? (
+            <Link
+              to="/courses"
+              className="inline-flex items-center gap-2 bg-white text-[#1E3A8A] px-6 py-3 rounded-lg font-medium hover:bg-[#DBEAFE] transition-colors"
+            >
+              View Courses <ArrowRight className="w-5 h-5" />
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 bg-white text-[#1E3A8A] px-6 py-3 rounded-lg font-medium hover:bg-[#DBEAFE] transition-colors"
+            >
+              Get Started <ArrowRight className="w-5 h-5" />
+            </Link>
+          )}
         </div>
       </section>
 

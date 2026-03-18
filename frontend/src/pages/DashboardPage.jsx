@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar";
 
+// Placeholder dashboard page
 const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-white">

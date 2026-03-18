@@ -5,6 +5,7 @@ import { BookOpen, User, LayoutDashboard, Library, LogOut, ChevronDown } from 'l
 import { setUser } from '../features/auth/authSlice'
 import API from '../api/axios'
 
+// Responsive navigation bar with auth-aware links and profile dropdown
 const Navbar = () => {
   const { user } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
@@ -22,6 +23,7 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Logs user out, clears Redux state, and redirects to login
   const handleLogout = async () => {
     setDropdownOpen(false)
     try {
@@ -33,6 +35,7 @@ const Navbar = () => {
     navigate('/login')
   }
 
+  // Returns active/inactive styling for nav links
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-1.5 text-sm font-medium transition-colors ${
       isActive ? 'text-[#1E3A8A]' : 'text-[#6B7280] hover:text-[#1E3A8A]'
@@ -66,9 +69,17 @@ const Navbar = () => {
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 className="flex items-center gap-1.5 text-[#6B7280] hover:text-[#1E3A8A] transition-colors cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-[#DBEAFE] flex items-center justify-center">
-                  <User className="w-4 h-4 text-[#1E3A8A]" />
-                </div>
+                {user.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-[#DBEAFE] flex items-center justify-center">
+                    <User className="w-4 h-4 text-[#1E3A8A]" />
+                  </div>
+                )}
                 <ChevronDown className="w-4 h-4" />
               </button>
 

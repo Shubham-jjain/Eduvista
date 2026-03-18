@@ -5,6 +5,7 @@ import { Mail, Lock, Eye, EyeOff, BookOpen, User } from 'lucide-react'
 import { setUser, setLoading, setError, clearError } from '../../features/auth/authSlice'
 import API from '../../api/axios'
 
+// Registration form with role selection and password validation
 const SignupPage = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -28,6 +29,7 @@ const SignupPage = () => {
     dispatch(clearError())
   }, [dispatch])
 
+  // Validates inputs, submits registration, and dispatches user to Redux store
   const handleSubmit = async (e) => {
     e.preventDefault()
     setFormError(null)

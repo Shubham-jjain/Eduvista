@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar";
 
+// Placeholder all courses listing page
 const AllCoursesPage = () => {
   return (
     <div className="min-h-screen bg-white">

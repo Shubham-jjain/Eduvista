@@ -4,6 +4,7 @@ import { register, login, logout } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
+// POST /register — validates input and registers a new user
 router.post(
     "/register",
     [
@@ -20,6 +21,7 @@ router.post(
     register
 );
 
+// POST /login — validates credentials and logs user in
 router.post(
     "/login",
     [
@@ -29,6 +31,7 @@ router.post(
     login
 );
 
+// POST /logout — logs user out
 router.post("/logout", logout);
 
 export default router;
