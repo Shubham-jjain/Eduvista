@@ -1,12 +1,15 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
 import { Plus, Trash2, ImagePlus, HelpCircle, Loader2 } from "lucide-react"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 
 const categories = ["Development", "Data Science", "Design", "Marketing", "Business", "Photography"]
 
-// Course creation form with sections, lessons, and quizzes (no backend logic)
-const CreateCoursePage = () => {
+// Course edit form that loads existing course data and submits updates
+const EditCoursePage = () => {
+  const { id } = useParams()
+  const navigate = useNavigate()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("")
@@ -17,9 +20,53 @@ const CreateCoursePage = () => {
   const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const fileInputRef = useRef(null)
 
-  // Submits course data with optional thumbnail to the backend API
+  useEffect(() => {
+    fetchCourse()
+  }, [id])
+
+  // Fetches existing course data and pre-fills all form fields
+  const fetchCourse = async () => {
+    try {
+      const res = await API.get(`/courses/${id}`)
+      const course = res.data.course
+      setTitle(course.title)
+      setDescription(course.description)
+      setCategory(course.category)
+      setPrice(String(course.price))
+      setStatus(course.status)
+      setSections(
+        course.sections?.map((s) => ({
+          title: s.title,
+          lessons: s.lessons?.map((l) => ({
+            title: l.title,
+            videoUrl: l.videoUrl || "",
+            notes: l.notes || "",
+            duration: l.duration ? String(l.duration) : "",
+          })) || [],
+          quiz: s.quiz
+            ? {
+                passPercentage: s.quiz.passPercentage || 50,
+                questions: s.quiz.questions?.map((q) => ({
+                  question: q.question,
+                  options: q.options?.length === 4 ? [...q.options] : ["", "", "", ""],
+                  correctAnswer: q.correctAnswer || 0,
+                })) || [],
+              }
+            : null,
+        })) || []
+      )
+      if (course.thumbnail) setThumbnailPreview(course.thumbnail)
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load course")
+    } finally {
+      setFetching(false)
+    }
+  }
+
+  // Submits updated course data to the backend API
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -38,20 +85,12 @@ const CreateCoursePage = () => {
       const file = fileInputRef.current?.files[0]
       if (file) formData.append("thumbnail", file)
 
-      await API.post("/courses", formData)
+      await API.put(`/courses/${id}`, formData)
 
-      setSuccess("Course created successfully!")
-      setTitle("")
-      setDescription("")
-      setCategory("")
-      setPrice("")
-      setThumbnailPreview(null)
-      setStatus("draft")
-      setSections([])
-      if (fileInputRef.current) fileInputRef.current.value = ""
-      setTimeout(() => setSuccess(null), 3000)
+      setSuccess("Course updated successfully!")
+      setTimeout(() => navigate("/my-courses"), 1500)
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create course")
+      setError(err.response?.data?.message || "Failed to update course")
       setTimeout(() => setError(null), 3000)
     } finally {
       setLoading(false)
@@ -181,12 +220,23 @@ const CreateCoursePage = () => {
   const inputClass = "w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
   const labelClass = "block text-sm font-medium text-[#111827] mb-1.5"
 
+  if (fetching) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="w-8 h-8 text-[#2563EB] animate-spin" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-2xl font-bold text-[#111827] mb-8">Create New Course</h1>
+        <h1 className="text-2xl font-bold text-[#111827] mb-8">Edit Course</h1>
 
         {success && (
           <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm">
@@ -560,7 +610,7 @@ const CreateCoursePage = () => {
             className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#1E3A8A] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {loading ? "Creating Course..." : "Create Course"}
+            {loading ? "Updating Course..." : "Update Course"}
           </button>
         </form>
       </div>
@@ -568,4 +618,4 @@ const CreateCoursePage = () => {
   )
 }
 
-export default CreateCoursePage
+export default EditCoursePage

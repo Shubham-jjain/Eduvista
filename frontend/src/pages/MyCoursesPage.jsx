@@ -1,25 +1,20 @@
 import { useState, useEffect } from "react"
 import { useSelector } from "react-redux"
-import { useNavigate, Link } from "react-router-dom"
-import { BookOpen, Users, Plus, Loader2, Star } from "lucide-react"
+import { Link } from "react-router-dom"
+import { BookOpen, Users, Plus, Loader2, Star, Pencil, Trash2 } from "lucide-react"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
 
 // Displays role-based course list: enrolled, created, or all courses
 const MyCoursesPage = () => {
   const { user } = useSelector((state) => state.auth)
-  const navigate = useNavigate()
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login")
-      return
-    }
     fetchCourses()
-  }, [user, navigate])
+  }, [])
 
   // Fetches user's courses from the backend API
   const fetchCourses = async () => {
@@ -33,7 +28,17 @@ const MyCoursesPage = () => {
     }
   }
 
-  if (!user) return null
+  const handleDelete = async (e, courseId) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return
+    try {
+      await API.delete(`/courses/${courseId}`)
+      setCourses((prev) => prev.filter((c) => c._id !== courseId))
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete course")
+    }
+  }
 
   const heading = user.role === "admin" ? "All Courses" : "My Courses"
 
@@ -88,7 +93,8 @@ const MyCoursesPage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {courses.map((course) => (
-              <div
+              <Link
+                to={`/courses/${course._id}`}
                 key={course._id}
                 className="border border-[#E5E7EB] rounded-lg overflow-hidden hover:shadow-md transition-shadow"
               >
@@ -142,8 +148,38 @@ const MyCoursesPage = () => {
                       )
                     )}
                   </div>
+
+                  {user.role === "instructor" && (
+                    <div className="mt-3 flex gap-2">
+                      <Link
+                        to={`/edit-course/${course._id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-[#E5E7EB] rounded-lg text-xs font-medium text-[#6B7280] hover:text-[#2563EB] hover:border-[#2563EB] transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        Edit
+                      </Link>
+                      <button
+                        onClick={(e) => handleDelete(e, course._id)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-[#E5E7EB] rounded-lg text-xs font-medium text-[#6B7280] hover:text-red-500 hover:border-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Delete
+                      </button>
+                    </div>
+                  )}
+
+                  {user.role === "admin" && (
+                    <button
+                      onClick={(e) => handleDelete(e, course._id)}
+                      className="mt-3 flex items-center justify-center gap-1.5 w-full py-2 border border-[#E5E7EB] rounded-lg text-xs font-medium text-[#6B7280] hover:text-red-500 hover:border-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete Course
+                    </button>
+                  )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

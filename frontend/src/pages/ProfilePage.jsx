@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
 import { User, Mail, Camera, Pencil, Save, X, Loader2, Tag } from "lucide-react"
 import { setUser } from "../features/auth/authSlice"
 import API from "../api/axios"
@@ -10,7 +9,6 @@ import Navbar from "../components/Navbar"
 const ProfilePage = () => {
   const { user } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
-  const navigate = useNavigate()
   const fileInputRef = useRef(null)
 
   const [name, setName] = useState("")
@@ -25,15 +23,11 @@ const ProfilePage = () => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login")
-      return
-    }
-    setName(user.name || "")
-    setBio(user.bio || "")
-    setExpertise(user.expertise?.join(", ") || "")
-    setImagePreview(user.profileImage || null)
-  }, [user, navigate])
+    setName(user?.name || "")
+    setBio(user?.bio || "")
+    setExpertise(user?.expertise?.join(", ") || "")
+    setImagePreview(user?.profileImage || null)
+  }, [user])
 
   // Saves updated profile fields to backend
   const handleProfileUpdate = async (e) => {
@@ -112,8 +106,6 @@ const ProfilePage = () => {
     setExpertise(user?.expertise?.join(", ") || "")
     setError(null)
   }
-
-  if (!user) return null
 
   return (
     <div className="min-h-screen bg-white">

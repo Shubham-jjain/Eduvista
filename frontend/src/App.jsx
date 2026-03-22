@@ -11,6 +11,9 @@ import AllCoursesPage from './pages/AllCoursesPage'
 import MyCoursesPage from './pages/MyCoursesPage'
 import ProfilePage from './pages/ProfilePage'
 import CreateCoursePage from './pages/CreateCoursePage'
+import EditCoursePage from './pages/EditCoursePage'
+import CourseDetailPage from './pages/CourseDetailPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 // Root component with session restoration and route definitions
 const App = () => {
@@ -45,11 +48,13 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<SignupPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path="/courses" element={<AllCoursesPage />} />
-        <Route path="/my-courses" element={<MyCoursesPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/create-course" element={<CreateCoursePage />} />
+        <Route path="/courses/:id" element={<CourseDetailPage />} />
+        <Route path="/my-courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/create-course" element={<ProtectedRoute roles={["instructor"]}><CreateCoursePage /></ProtectedRoute>} />
+        <Route path="/edit-course/:id" element={<ProtectedRoute roles={["instructor"]}><EditCoursePage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   )
