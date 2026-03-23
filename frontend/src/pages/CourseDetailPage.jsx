@@ -1,35 +1,130 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
-import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, ChevronRight, PlayCircle, FileText, ArrowLeft, X } from "lucide-react"
+import { useSelector } from "react-redux"
+import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, ChevronRight, PlayCircle, FileText, ArrowLeft, X, CheckCircle } from "lucide-react"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
 import VideoPlayer from "../components/VideoPlayer"
+import PaymentModal from "../components/PaymentModal"
 
 // Displays full course details including sections, lessons, and instructor info
 const CourseDetailPage = () => {
   const { id } = useParams()
+  const { user } = useSelector((state) => state.auth)
   const [course, setCourse] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [openSections, setOpenSections] = useState({})
   const [activeLesson, setActiveLesson] = useState(null)
+  const [isEnrolled, setIsEnrolled] = useState(false)
+  const [progress, setProgress] = useState(null)
+  const [markingComplete, setMarkingComplete] = useState(false)
+  const [quizAttempts, setQuizAttempts] = useState({})
+  const [enrolling, setEnrolling] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
 
   useEffect(() => {
     fetchCourse()
   }, [id])
 
-  // Fetches a single course by ID from the backend
+  // Fetches a single course by ID and checks enrollment + progress
   const fetchCourse = async () => {
     setLoading(true)
     setError(null)
     try {
       const res = await API.get(`/courses/${id}`)
-      setCourse(res.data.course)
+      const courseData = res.data.course
+      setCourse(courseData)
+
+      if (user && user.role === "student" && courseData.studentsEnrolled?.includes(user._id)) {
+        setIsEnrolled(true)
+        try {
+          const progressRes = await API.get(`/progress/${id}`)
+          setProgress(progressRes.data.progress)
+        } catch {
+          setProgress(null)
+        }
+
+        // Fetch quiz attempts for sections that have quizzes
+        const attempts = {}
+        for (const section of courseData.sections) {
+          if (section.quiz?.questions?.length > 0) {
+            try {
+              const attemptRes = await API.get(`/quiz/attempt/${id}/${section._id}`)
+              if (attemptRes.data.attempt) {
+                attempts[section._id] = attemptRes.data.attempt
+              }
+            } catch {
+              // silent fail for quiz attempt fetch
+            }
+          }
+        }
+        setQuizAttempts(attempts)
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load course")
     } finally {
       setLoading(false)
     }
+  }
+
+  // Marks the active lesson as complete and updates progress
+  const handleMarkComplete = async () => {
+    if (!activeLesson || markingComplete) return
+    setMarkingComplete(true)
+    try {
+      const res = await API.post("/progress/lesson-complete", {
+        courseId: id,
+        lessonId: activeLesson._id,
+      })
+      setProgress(res.data.progress)
+    } catch (err) {
+      console.error("Mark complete error:", err)
+    } finally {
+      setMarkingComplete(false)
+    }
+  }
+
+  // Enrolls the student in a free course directly
+  const handleEnroll = async () => {
+    setEnrolling(true)
+    try {
+      await API.post(`/enroll/${id}`)
+      await fetchCourse()
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to enroll")
+    } finally {
+      setEnrolling(false)
+    }
+  }
+
+  // Called after mock payment succeeds for paid courses
+  const handlePaymentSuccess = async () => {
+    try {
+      await API.post(`/enroll/${id}`)
+      setShowPaymentModal(false)
+      await fetchCourse()
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to enroll")
+      setShowPaymentModal(false)
+    }
+  }
+
+  // Updates last accessed lesson when a lesson is clicked
+  const handleLessonClick = async (lesson) => {
+    setActiveLesson(lesson)
+    if (isEnrolled) {
+      try {
+        await API.put("/progress/last-accessed", { courseId: id, lessonId: lesson._id })
+      } catch {
+        // silent fail for last-accessed tracking
+      }
+    }
+  }
+
+  // Checks if a lesson has been completed
+  const isLessonCompleted = (lessonId) => {
+    return progress?.completedLessons?.some((id) => id.toString() === lessonId.toString()) || false
   }
 
   // Toggles a section's expanded/collapsed state
@@ -107,6 +202,25 @@ const CourseDetailPage = () => {
                   </button>
                 </div>
                 <VideoPlayer url={activeLesson.videoUrl} title={activeLesson.title} />
+                {isEnrolled && (
+                  <button
+                    onClick={handleMarkComplete}
+                    disabled={markingComplete || isLessonCompleted(activeLesson._id)}
+                    className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isLessonCompleted(activeLesson._id)
+                        ? "bg-green-50 text-green-600 cursor-default"
+                        : "bg-[#2563EB] text-white hover:bg-[#1E3A8A] cursor-pointer"
+                    }`}
+                  >
+                    {isLessonCompleted(activeLesson._id) ? (
+                      <><CheckCircle className="w-4 h-4" /> Completed</>
+                    ) : markingComplete ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Marking...</>
+                    ) : (
+                      "Mark as Complete"
+                    )}
+                  </button>
+                )}
                 {activeLesson.notes && (
                   <p className="mt-3 text-sm text-[#6B7280] leading-relaxed">{activeLesson.notes}</p>
                 )}
@@ -184,13 +298,17 @@ const CourseDetailPage = () => {
                           {section.lessons.map((lesson, lIdx) => (
                             <button
                               key={lIdx}
-                              onClick={() => setActiveLesson(lesson)}
+                              onClick={() => handleLessonClick(lesson)}
                               className={`w-full flex items-center justify-between py-2 px-3 rounded hover:bg-[#DBEAFE] transition-colors cursor-pointer ${
                                 activeLesson?._id === lesson._id ? "bg-[#DBEAFE]" : ""
                               }`}
                             >
                               <div className="flex items-center gap-2">
-                                <PlayCircle className={`w-3.5 h-3.5 ${activeLesson?._id === lesson._id ? "text-[#2563EB]" : "text-[#6B7280]"}`} />
+                                {isEnrolled && isLessonCompleted(lesson._id) ? (
+                                  <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                                ) : (
+                                  <PlayCircle className={`w-3.5 h-3.5 ${activeLesson?._id === lesson._id ? "text-[#2563EB]" : "text-[#6B7280]"}`} />
+                                )}
                                 <span className={`text-sm ${activeLesson?._id === lesson._id ? "text-[#2563EB] font-medium" : "text-[#111827]"}`}>{lesson.title}</span>
                               </div>
                               {lesson.duration > 0 && (
@@ -199,12 +317,35 @@ const CourseDetailPage = () => {
                             </button>
                           ))}
                           {section.quiz?.questions?.length > 0 && (
-                            <div className="flex items-center gap-2 py-2 px-3">
-                              <FileText className="w-3.5 h-3.5 text-[#2563EB]" />
-                              <span className="text-sm text-[#2563EB] font-medium">
-                                Quiz · {section.quiz.questions.length} questions
-                              </span>
-                            </div>
+                            isEnrolled ? (
+                              <Link
+                                to={`/courses/${id}/quiz/${section._id}`}
+                                className="w-full flex items-center justify-between py-2 px-3 rounded hover:bg-[#DBEAFE] transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {quizAttempts[section._id]?.passed ? (
+                                    <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                                  ) : (
+                                    <FileText className="w-3.5 h-3.5 text-[#2563EB]" />
+                                  )}
+                                  <span className="text-sm text-[#2563EB] font-medium">
+                                    Quiz · {section.quiz.questions.length} questions
+                                  </span>
+                                </div>
+                                {quizAttempts[section._id] && (
+                                  <span className={`text-xs font-medium ${quizAttempts[section._id].passed ? "text-green-600" : "text-yellow-600"}`}>
+                                    {quizAttempts[section._id].percentage}% {quizAttempts[section._id].passed ? "Passed" : "Not passed"}
+                                  </span>
+                                )}
+                              </Link>
+                            ) : (
+                              <div className="flex items-center gap-2 py-2 px-3">
+                                <FileText className="w-3.5 h-3.5 text-[#2563EB]" />
+                                <span className="text-sm text-[#2563EB] font-medium">
+                                  Quiz · {section.quiz.questions.length} questions
+                                </span>
+                              </div>
+                            )
                           )}
                         </div>
                       )}
@@ -227,6 +368,62 @@ const CourseDetailPage = () => {
                   Draft
                 </span>
               )}
+
+              {/* Enrollment / Progress */}
+              {isEnrolled && progress ? (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-medium text-[#111827]">Your Progress</span>
+                    <span className="text-sm font-medium text-[#2563EB]">{progress.progressPercentage}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#2563EB] rounded-full transition-all duration-300"
+                      style={{ width: `${progress.progressPercentage}%` }}
+                    />
+                  </div>
+                  {progress.completed && (
+                    <p className="mt-2 text-xs font-medium text-green-600 flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5" /> Course Completed
+                    </p>
+                  )}
+                </div>
+              ) : !isEnrolled && user?.role === "student" && course.status === "published" ? (
+                <div className="mb-4">
+                  {course.price === 0 ? (
+                    <button
+                      onClick={handleEnroll}
+                      disabled={enrolling}
+                      className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors disabled:opacity-70 cursor-pointer"
+                    >
+                      {enrolling ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Enrolling...
+                        </span>
+                      ) : (
+                        "Enroll for Free"
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowPaymentModal(true)}
+                      className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors cursor-pointer"
+                    >
+                      Buy for ${course.price}
+                    </button>
+                  )}
+                </div>
+              ) : !user && course.status === "published" ? (
+                <div className="mb-4">
+                  <Link
+                    to="/login"
+                    className="block w-full text-center bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors"
+                  >
+                    Log in to Enroll
+                  </Link>
+                </div>
+              ) : null}
 
               {/* Instructor */}
               {course.instructor && (
@@ -266,6 +463,15 @@ const CourseDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment modal for paid courses */}
+      {showPaymentModal && (
+        <PaymentModal
+          course={course}
+          onClose={() => setShowPaymentModal(false)}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   )
 }

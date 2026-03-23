@@ -10,7 +10,7 @@ const router = express.Router();
 router.get("/my-courses", authMiddleware, getMyCourses);
 
 // GET / — returns all published courses with optional filters
-router.get("/", authMiddleware, getAllCourses);
+router.get("/", getAllCourses);
 
 // GET /:id — returns a single course with full details
 router.get("/:id", getCourseById);

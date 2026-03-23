@@ -1,6 +1,7 @@
 import Course from "../models/course.model.js";
 import User from "../models/user.model.js";
 import Progress from "../models/progress.model.js";
+import Payment from "../models/payment.model.js";
 
 // Enrolls a student in a published course with mock payment
 export const enrollInCourse = async (req, res) => {
@@ -33,6 +34,17 @@ export const enrollInCourse = async (req, res) => {
             user: userId,
             course: course._id,
         });
+
+        // Create payment record for paid courses
+        if (course.price > 0) {
+            await Payment.create({
+                user: userId,
+                course: course._id,
+                amount: course.price,
+                status: "success",
+                transactionId,
+            });
+        }
 
         res.status(200).json({ message: "Enrolled successfully", transactionId });
     } catch (error) {

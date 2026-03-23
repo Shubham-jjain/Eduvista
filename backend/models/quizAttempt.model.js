@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Schema for storing a student's quiz submission and score
+// Schema for storing a student's latest quiz score per section (overwritten on retake)
 const quizAttemptSchema = new mongoose.Schema(
     {
         user: {
@@ -39,6 +39,9 @@ const quizAttemptSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+// Compound unique index — one record per student per section (latest score only)
+quizAttemptSchema.index({ user: 1, course: 1, sectionId: 1 }, { unique: true });
 
 const QuizAttempt = mongoose.model("QuizAttempt", quizAttemptSchema);
 

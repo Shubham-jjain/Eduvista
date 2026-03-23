@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
-import { BookOpen, Users, Plus, Loader2, Star, Pencil, Trash2 } from "lucide-react"
+import { BookOpen, Users, Plus, Loader2, Star, Pencil, Trash2, CheckCircle } from "lucide-react"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
 
@@ -16,10 +16,11 @@ const MyCoursesPage = () => {
     fetchCourses()
   }, [])
 
-  // Fetches user's courses from the backend API
+  // Fetches user's courses — students use enrollment endpoint with progress data
   const fetchCourses = async () => {
     try {
-      const res = await API.get("/courses/my-courses")
+      const endpoint = user.role === "student" ? "/enroll/my-courses" : "/courses/my-courses"
+      const res = await API.get(endpoint)
       setCourses(res.data.courses)
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load courses")
@@ -148,6 +149,30 @@ const MyCoursesPage = () => {
                       )
                     )}
                   </div>
+
+                  {user.role === "student" && course.progress && (
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between mb-1">
+                        {course.progress.completed ? (
+                          <span className="text-xs font-medium text-green-600 flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3" /> Completed
+                          </span>
+                        ) : (
+                          <span className="text-xs text-[#6B7280]">
+                            {course.progress.progressPercentage}% complete
+                          </span>
+                        )}
+                      </div>
+                      <div className="w-full h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            course.progress.completed ? "bg-green-500" : "bg-[#2563EB]"
+                          }`}
+                          style={{ width: `${course.progress.progressPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {user.role === "instructor" && (
                     <div className="mt-3 flex gap-2">
