@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, ChevronRight, PlayCircle, FileText, ArrowLeft, X, CheckCircle } from "lucide-react"
+import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, ChevronRight, PlayCircle, FileText, ArrowLeft, X, CheckCircle, Download } from "lucide-react"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
 import VideoPlayer from "../components/VideoPlayer"
 import PaymentModal from "../components/PaymentModal"
+import ReviewSection from "../components/ReviewSection"
 
 // Displays full course details including sections, lessons, and instructor info
 const CourseDetailPage = () => {
@@ -107,6 +108,23 @@ const CourseDetailPage = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Failed to enroll")
       setShowPaymentModal(false)
+    }
+  }
+
+  // Downloads the certificate PDF for a completed course
+  const handleDownloadCertificate = async () => {
+    try {
+      const res = await API.get(`/certificate/${id}`, { responseType: "blob" })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }))
+      const link = document.createElement("a")
+      link.href = url
+      link.setAttribute("download", `certificate-${id}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error("Download certificate error:", err)
     }
   }
 
@@ -354,6 +372,14 @@ const CourseDetailPage = () => {
                 </div>
               </div>
             )}
+
+            {/* Reviews */}
+            <ReviewSection
+              courseId={id}
+              isEnrolled={isEnrolled}
+              user={user}
+              onReviewChange={fetchCourse}
+            />
           </div>
 
           {/* Sidebar */}
@@ -386,6 +412,15 @@ const CourseDetailPage = () => {
                     <p className="mt-2 text-xs font-medium text-green-600 flex items-center gap-1">
                       <CheckCircle className="w-3.5 h-3.5" /> Course Completed
                     </p>
+                  )}
+                  {progress.progressPercentage >= 95 && (
+                    <button
+                      onClick={handleDownloadCertificate}
+                      className="w-full mt-3 flex items-center justify-center gap-2 bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors cursor-pointer"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download Certificate
+                    </button>
                   )}
                 </div>
               ) : !isEnrolled && user?.role === "student" && course.status === "published" ? (
