@@ -2,7 +2,7 @@ import express from "express";
 import { body } from "express-validator";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
-import { getProfile, updateProfile, updateProfileImage } from "../controllers/user.controller.js";
+import { getProfile, updateProfile, updateProfileImage, changePassword } from "../controllers/user.controller.js";
 
 const router = express.Router();
 
@@ -33,5 +33,17 @@ router.put(
 
 // PUT /profile/image — uploads and updates profile image
 router.put("/profile/image", upload.single("profileImage"), updateProfileImage);
+
+// PUT /profile/password — changes the user's password
+router.put(
+    "/profile/password",
+    [
+        body("oldPassword").notEmpty().withMessage("Current password is required"),
+        body("newPassword")
+            .isLength({ min: 8 })
+            .withMessage("New password must be at least 8 characters"),
+    ],
+    changePassword
+);
 
 export default router;

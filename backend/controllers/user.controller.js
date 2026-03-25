@@ -1,6 +1,10 @@
+import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import User from "../models/user.model.js";
 import cloudinary from "../config/cloudinary.js";
+
+const SALT_ROUNDS = 10;
+const PASSWORD_REGEX = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
 // Returns the authenticated user's profile (excluding password)
 export const getProfile = async (req, res) => {
@@ -84,6 +88,42 @@ export const updateProfileImage = async (req, res) => {
         res.status(200).json({ message: "Profile image updated successfully", user });
     } catch (error) {
         console.error("Update profile image error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Changes the user's password after verifying the old password
+export const changePassword = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Current password is incorrect" });
+        }
+
+        if (!PASSWORD_REGEX.test(newPassword)) {
+            return res.status(400).json({
+                message: "Password must be at least 8 characters with 1 letter, 1 number, and 1 special character",
+            });
+        }
+
+        user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        await user.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Change password error:", error);
         res.status(500).json({ message: "Server error" });
     }
 };

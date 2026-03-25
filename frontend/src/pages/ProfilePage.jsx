@@ -1,11 +1,19 @@
 import { useState, useRef, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import { User, Mail, Camera, Pencil, Save, X, Loader2, Tag } from "lucide-react"
+import { User, Mail, Camera, Pencil, Save, X, Loader2, Tag, Lock, Eye, EyeOff, ChevronDown, ChevronUp, Check } from "lucide-react"
 import { setUser } from "../features/auth/authSlice"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
 
-// User profile page with image upload and editable bio/expertise fields
+// Password rule checker returning pass/fail for each requirement
+const getPasswordRules = (password) => [
+  { label: "At least 8 characters", passed: password.length >= 8 },
+  { label: "At least 1 letter", passed: /[a-zA-Z]/.test(password) },
+  { label: "At least 1 number", passed: /\d/.test(password) },
+  { label: "At least 1 special character", passed: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) },
+]
+
+// User profile page with image upload, editable bio/expertise, and password change
 const ProfilePage = () => {
   const { user } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
@@ -21,6 +29,17 @@ const ProfilePage = () => {
   const [imageLoading, setImageLoading] = useState(false)
   const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
+
+  // Password change state
+  const [showPasswordSection, setShowPasswordSection] = useState(false)
+  const [oldPassword, setOldPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmNewPassword, setConfirmNewPassword] = useState("")
+  const [showOldPassword, setShowOldPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordSuccess, setPasswordSuccess] = useState(null)
+  const [passwordError, setPasswordError] = useState(null)
 
   useEffect(() => {
     setName(user?.name || "")
@@ -105,6 +124,39 @@ const ProfilePage = () => {
     setBio(user?.bio || "")
     setExpertise(user?.expertise?.join(", ") || "")
     setError(null)
+  }
+
+  const passwordRules = getPasswordRules(newPassword)
+  const allRulesPassed = passwordRules.every((r) => r.passed)
+
+  // Validates and submits password change to backend
+  const handlePasswordChange = async (e) => {
+    e.preventDefault()
+    setPasswordError(null)
+    setPasswordSuccess(null)
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("New passwords do not match")
+      return
+    }
+
+    if (!allRulesPassed) {
+      setPasswordError("New password does not meet all requirements")
+      return
+    }
+
+    setPasswordLoading(true)
+    try {
+      const res = await API.put("/user/profile/password", { oldPassword, newPassword })
+      setPasswordSuccess(res.data.message)
+      setOldPassword("")
+      setNewPassword("")
+      setConfirmNewPassword("")
+    } catch (err) {
+      setPasswordError(err.response?.data?.message || "Failed to change password")
+    } finally {
+      setPasswordLoading(false)
+    }
   }
 
   return (
@@ -307,6 +359,141 @@ const ProfilePage = () => {
                   <p className="text-sm text-[#6B7280]">No expertise added yet.</p>
                 )}
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* Change Password Section */}
+        <div className="border border-[#E5E7EB] rounded-lg mt-6">
+          <button
+            onClick={() => {
+              setShowPasswordSection(!showPasswordSection)
+              setPasswordError(null)
+              setPasswordSuccess(null)
+            }}
+            className="w-full flex items-center justify-between p-6 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-[#6B7280]" />
+              <h2 className="text-lg font-bold text-[#111827]">Change Password</h2>
+            </div>
+            {showPasswordSection ? (
+              <ChevronUp className="w-5 h-5 text-[#6B7280]" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-[#6B7280]" />
+            )}
+          </button>
+
+          {showPasswordSection && (
+            <div className="px-6 pb-6">
+              {passwordSuccess && (
+                <div className="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm">
+                  {passwordSuccess}
+                </div>
+              )}
+              {passwordError && (
+                <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                  {passwordError}
+                </div>
+              )}
+
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                {/* Current Password */}
+                <div>
+                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                    Current password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+                    <input
+                      type={showOldPassword ? "text" : "password"}
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      required
+                      className="w-full pl-10 pr-10 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#111827]"
+                    >
+                      {showOldPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div>
+                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                    New password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      className="w-full pl-10 pr-10 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#111827]"
+                    >
+                      {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+
+                  {/* Password Rules */}
+                  {newPassword && (
+                    <div className="mt-2 space-y-1">
+                      {passwordRules.map((rule, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          {rule.passed ? (
+                            <Check className="w-3.5 h-3.5 text-green-500" />
+                          ) : (
+                            <X className="w-3.5 h-3.5 text-red-400" />
+                          )}
+                          <span className={`text-xs ${rule.passed ? "text-green-600" : "text-[#6B7280]"}`}>
+                            {rule.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm New Password */}
+                <div>
+                  <label className="block text-sm font-medium text-[#111827] mb-1.5">
+                    Confirm new password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      required
+                      className="w-full pl-10 pr-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={passwordLoading}
+                  className="flex items-center gap-2 bg-[#2563EB] text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-[#1E3A8A] transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {passwordLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Lock className="w-4 h-4" />
+                  )}
+                  Change Password
+                </button>
+              </form>
             </div>
           )}
         </div>
