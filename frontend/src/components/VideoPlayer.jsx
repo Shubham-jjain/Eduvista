@@ -33,7 +33,7 @@ const VideoPlayer = ({ url, title }) => {
     return (
       <div className="w-full aspect-video rounded-lg overflow-hidden">
         <iframe
-          src={`https://www.youtube.com/embed/${youtubeId}`}
+          src={`https://www.youtube.com/embed/${youtubeId}?rel=0`}
           title={title || "Video"}
           className="w-full h-full"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

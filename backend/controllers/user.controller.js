@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import User from "../models/user.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { sendPasswordChangedEmail } from "../services/emailService.js";
 
 const SALT_ROUNDS = 10;
 const PASSWORD_REGEX = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
@@ -120,6 +121,8 @@ export const changePassword = async (req, res) => {
 
         user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
         await user.save();
+
+        sendPasswordChangedEmail(user.name, user.email);
 
         res.status(200).json({ message: "Password changed successfully" });
     } catch (error) {

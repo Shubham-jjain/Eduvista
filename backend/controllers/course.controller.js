@@ -1,6 +1,7 @@
 import Course from "../models/course.model.js";
 import User from "../models/user.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { sendCoursePublishedEmail } from "../services/emailService.js";
 
 // Returns all published courses with optional category and search filters
 export const getAllCourses = async (req, res) => {
@@ -80,6 +81,7 @@ export const updateCourse = async (req, res) => {
         }
 
         const { title, description, category, price, status, sections } = req.body;
+        const oldStatus = course.status;
 
         let thumbnail = course.thumbnail;
         if (req.file) {
@@ -105,6 +107,12 @@ export const updateCourse = async (req, res) => {
         course.sections = parsedSections;
 
         await course.save();
+
+        // Notify instructor when course is first published
+        if (oldStatus !== "published" && course.status === "published") {
+            const instructor = await User.findById(req.user.userId).select("name email");
+            if (instructor) sendCoursePublishedEmail(instructor.name, instructor.email, course.title);
+        }
 
         res.status(200).json({ message: "Course updated successfully", course });
     } catch (error) {
@@ -173,6 +181,12 @@ export const createCourse = async (req, res) => {
             sections: parsedSections,
             status: status || "draft",
         });
+
+        // Notify instructor when course is created as published
+        if (course.status === "published") {
+            const instructor = await User.findById(req.user.userId).select("name email");
+            if (instructor) sendCoursePublishedEmail(instructor.name, instructor.email, course.title);
+        }
 
         res.status(201).json({ message: "Course created successfully", course });
     } catch (error) {

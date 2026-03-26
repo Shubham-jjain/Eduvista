@@ -2,6 +2,7 @@ import Course from "../models/course.model.js";
 import User from "../models/user.model.js";
 import Progress from "../models/progress.model.js";
 import Payment from "../models/payment.model.js";
+import { sendEnrollmentEmail } from "../services/emailService.js";
 
 // Enrolls a student in a published course with mock payment
 export const enrollInCourse = async (req, res) => {
@@ -45,6 +46,9 @@ export const enrollInCourse = async (req, res) => {
                 transactionId,
             });
         }
+
+        const student = await User.findById(userId).select("name email");
+        if (student) sendEnrollmentEmail(student.name, student.email, course.title);
 
         res.status(200).json({ message: "Enrolled successfully", transactionId });
     } catch (error) {

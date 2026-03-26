@@ -4,6 +4,7 @@ import Progress from "../models/progress.model.js";
 import Course from "../models/course.model.js";
 import User from "../models/user.model.js";
 import generateCertificatePDF from "../services/certificateService.js";
+import { sendCertificateEmail } from "../services/emailService.js";
 
 // Generates and downloads a PDF certificate for a completed course
 export const generateCertificate = async (req, res) => {
@@ -35,12 +36,14 @@ export const generateCertificate = async (req, res) => {
         }
 
         // Fetch user and course details for the PDF
-        const user = await User.findById(userId).select("name");
+        const user = await User.findById(userId).select("name email");
         const course = await Course.findById(courseId).select("title");
 
         if (!user || !course) {
             return res.status(404).json({ message: "User or course not found" });
         }
+
+        sendCertificateEmail(user.name, user.email, course.title, certificate.certificateId);
 
         // Generate PDF and stream to response
         const doc = new PDFDocument({ size: "A4", layout: "landscape" });

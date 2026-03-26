@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import User from "../models/user.model.js";
-import { sendVerificationEmail } from "../services/emailService.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../services/emailService.js";
 
 const SALT_ROUNDS = 10;
 
@@ -102,6 +102,8 @@ export const verifyEmail = async (req, res) => {
         });
 
         const { password: _, verificationCode: __, verificationCodeExpiry: ___, ...userData } = user.toObject();
+
+        sendWelcomeEmail(user.name, user.email);
 
         res.status(200).json({
             message: "Email verified successfully",
