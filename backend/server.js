@@ -18,10 +18,22 @@ import dashboardRoutes from "./routes/dashboard.route.js";
 const server = express();
 const PORT = process.env.PORT || 5001;
 
+// Allowed CORS origins: comma-separated in env (e.g. "https://a.com,https://b.com")
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",").map(o => o.trim());
+
 // Global middleware: JSON parsing, cookies, and CORS
 server.use(express.json());
 server.use(cookieParser());
-server.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173", credentials: true }));
+server.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith("-shubham-jjains-projects.vercel.app")) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
+}));
 
 // Mount API route handlers
 server.use("/api/auth", authRoutes);
