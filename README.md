@@ -2,7 +2,7 @@
 
 A full-stack online learning platform built with the MERN stack (MongoDB, Express.js, React.js, Node.js). Students can enroll in courses and track progress, instructors can create and manage course content, and administrators can monitor the entire system.
 
-**Live Demo:** [https://eduvista-qphasgpw7-shubham-jjains-projects.vercel.app](https://eduvista-qphasgpw7-shubham-jjains-projects.vercel.app)
+**Live Demo:** <a href="https://eduvista-qphasgpw7-shubham-jjains-projects.vercel.app" target="_blank">https://eduvista-qphasgpw7-shubham-jjains-projects.vercel.app</a>
 
 ---
 
