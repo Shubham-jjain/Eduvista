@@ -16,12 +16,12 @@ import reviewRoutes from "./routes/review.route.js";
 import dashboardRoutes from "./routes/dashboard.route.js";
 
 const server = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 // Global middleware: JSON parsing, cookies, and CORS
 server.use(express.json());
 server.use(cookieParser());
-server.use(cors({ origin: "http://localhost:5173", credentials: true }));
+server.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173", credentials: true }));
 
 // Mount API route handlers
 server.use("/api/auth", authRoutes);
