@@ -309,7 +309,7 @@ The application is deployed as two separate services:
 | Service | Platform | URL |
 |---------|----------|-----|
 | Frontend | Vercel | [eduvista-qphasgpw7-shubham-jjains-projects.vercel.app](https://eduvista-qphasgpw7-shubham-jjains-projects.vercel.app) |
-| Backend | Render | eduvista-6g7b.onrender.com |
+| Backend | Render | example.onrender.com |
 | Database | MongoDB Atlas | Cloud-hosted |
 
 ### Deploy Your Own
