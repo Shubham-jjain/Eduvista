@@ -1,13 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useCallback } from 'react'
 
-// Detects when an element enters the viewport using IntersectionObserver
+// Detects when an element enters the viewport using IntersectionObserver (callback ref pattern)
 const useInView = (options = {}) => {
-  const ref = useRef(null)
   const [isInView, setIsInView] = useState(false)
 
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
+  const ref = useCallback((element) => {
+    if (!element || isInView) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -20,8 +18,7 @@ const useInView = (options = {}) => {
     )
 
     observer.observe(element)
-    return () => observer.disconnect()
-  }, [])
+  }, [isInView])
 
   return [ref, isInView]
 }

@@ -2,6 +2,7 @@ import { useState, useRef } from "react"
 import { Plus, Trash2, ImagePlus, HelpCircle, Loader2 } from "lucide-react"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import useInView from "../hooks/useInView"
 
 const categories = ["Development", "Data Science", "Design", "Marketing", "Business", "Photography"]
 
@@ -18,6 +19,9 @@ const CreateCoursePage = () => {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null)
+
+  const [detailsRef, detailsInView] = useInView()
+  const [sectionsRef, sectionsInView] = useInView()
 
   // Submits course data with optional thumbnail to the backend API
   const handleSubmit = async (e) => {
@@ -178,32 +182,37 @@ const CreateCoursePage = () => {
     setSections(updated)
   }
 
-  const inputClass = "w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+  const inputClass = "w-full px-4 py-3 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm placeholder-[#9CA3AF] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
   const labelClass = "block text-sm font-medium text-[#111827] mb-1.5"
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white font-sans">
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-2xl font-bold text-[#111827] mb-8">Create New Course</h1>
+        <h1 className="animate-fade-in-up font-serif text-3xl md:text-4xl text-[#1E3A8A] mb-2" style={{ animationDelay: '100ms' }}>
+          Create New Course
+        </h1>
+        <p className="animate-fade-in-up text-[#6B7280] mb-8" style={{ animationDelay: '200ms' }}>
+          Build your curriculum and share your expertise
+        </p>
 
         {success && (
-          <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm">
+          <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm animate-fade-in">
             {success}
           </div>
         )}
 
         {error && (
-          <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+          <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm animate-fade-in">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* Course Details */}
-          <div className="border border-[#E5E7EB] rounded-lg p-6 mb-6">
-            <h2 className="text-lg font-bold text-[#111827] mb-5">Course Details</h2>
+          <div ref={detailsRef} className={`border border-[#E5E7EB] rounded-xl p-6 mb-6 reveal-on-scroll ${detailsInView ? 'revealed' : ''}`}>
+            <h2 className="font-serif text-xl text-[#1E3A8A] mb-5">Course Details</h2>
 
             <div className="space-y-5">
               <div>
@@ -273,7 +282,7 @@ const CreateCoursePage = () => {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[#E5E7EB] rounded-lg text-sm text-[#6B7280] hover:border-[#2563EB] hover:text-[#2563EB] transition-colors cursor-pointer w-full justify-center"
+                    className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-[#E5E7EB] rounded-lg text-sm text-[#6B7280] hover:border-[#2563EB] hover:text-[#2563EB] transition-all duration-200 cursor-pointer w-full justify-center"
                   >
                     <ImagePlus className="w-4 h-4" />
                     {thumbnailPreview ? "Change Image" : "Upload Image"}
@@ -303,13 +312,13 @@ const CreateCoursePage = () => {
           </div>
 
           {/* Sections */}
-          <div className="mb-6">
+          <div ref={sectionsRef} className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-[#111827]">Sections</h2>
+              <h2 className="font-serif text-xl text-[#1E3A8A]">Sections</h2>
               <button
                 type="button"
                 onClick={addSection}
-                className="flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:text-[#1E3A8A] transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:text-[#1E3A8A] transition-all duration-200 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 Add Section
@@ -323,9 +332,13 @@ const CreateCoursePage = () => {
             )}
 
             {sections.map((section, sIndex) => (
-              <div key={sIndex} className="border border-[#E5E7EB] rounded-lg p-6 mb-4">
+              <div
+                key={sIndex}
+                className={`border border-[#E5E7EB] rounded-xl p-6 mb-4 reveal-on-scroll ${sectionsInView ? 'revealed' : ''}`}
+                style={{ transitionDelay: `${sIndex * 100}ms` }}
+              >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold text-[#111827]">Section {sIndex + 1}</h3>
+                  <h3 className="font-serif text-sm font-bold text-[#1E3A8A]">Section {sIndex + 1}</h3>
                   <button
                     type="button"
                     onClick={() => removeSection(sIndex)}
@@ -368,7 +381,7 @@ const CreateCoursePage = () => {
                   )}
 
                   {section.lessons.map((lesson, lIndex) => (
-                    <div key={lIndex} className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 mb-3">
+                    <div key={lIndex} className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 mb-3 transition-all duration-200 hover:border-[#DBEAFE]">
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-medium text-[#6B7280]">Lesson {lIndex + 1}</span>
                         <button
@@ -487,7 +500,7 @@ const CreateCoursePage = () => {
                       )}
 
                       {section.quiz.questions.map((q, qIndex) => (
-                        <div key={qIndex} className="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-3">
+                        <div key={qIndex} className="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-3 transition-all duration-200 hover:border-[#DBEAFE]">
                           <div className="flex items-center justify-between mb-3">
                             <span className="text-xs font-medium text-[#6B7280]">Question {qIndex + 1}</span>
                             <button
@@ -557,7 +570,7 @@ const CreateCoursePage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#1E3A8A] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-[#1E3A8A] text-white py-3 rounded-lg font-semibold text-sm hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {loading ? "Creating Course..." : "Create Course"}

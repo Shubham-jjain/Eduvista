@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, ChevronRight, PlayCircle, FileText, ArrowLeft, X, CheckCircle, Download, Lock } from "lucide-react"
+import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, PlayCircle, FileText, ArrowLeft, X, CheckCircle, Download, Lock } from "lucide-react"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
 import VideoPlayer from "../components/VideoPlayer"
 import PaymentModal from "../components/PaymentModal"
 import ReviewSection from "../components/ReviewSection"
+import useInView from "../hooks/useInView"
 
 // Displays full course details including sections, lessons, and instructor info
 const CourseDetailPage = () => {
@@ -24,6 +25,9 @@ const CourseDetailPage = () => {
   const [quizAttempts, setQuizAttempts] = useState({})
   const [enrolling, setEnrolling] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+
+  const [sectionsRef, sectionsInView] = useInView()
+  const [sidebarRef, sidebarInView] = useInView()
 
   useEffect(() => {
     fetchCourse()
@@ -175,10 +179,11 @@ const CourseDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white font-sans">
         <Navbar />
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="w-8 h-8 text-[#2563EB] animate-spin" />
+        <div className="flex flex-col items-center justify-center py-32 animate-fade-in">
+          <Loader2 className="w-8 h-8 text-[#2563EB] animate-spin mb-3" />
+          <p className="text-sm text-[#6B7280]">Loading course details...</p>
         </div>
       </div>
     )
@@ -186,13 +191,15 @@ const CourseDetailPage = () => {
 
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white font-sans">
         <Navbar />
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="text-center py-20">
-            <BookOpen className="w-12 h-12 text-[#DBEAFE] mx-auto mb-4" />
-            <p className="text-[#6B7280] mb-4">{error || "Course not found"}</p>
-            <Link to="/courses" className="text-[#2563EB] text-sm font-medium hover:underline">
+          <div className="text-center py-20 animate-fade-in">
+            <BookOpen className="w-16 h-16 text-[#DBEAFE] mx-auto mb-4" />
+            <p className="text-lg font-medium text-[#111827] mb-1">{error || "Course not found"}</p>
+            <p className="text-sm text-[#6B7280] mb-6">The course you're looking for may have been removed or doesn't exist</p>
+            <Link to="/courses" className="inline-flex items-center gap-2 bg-[#1E3A8A] text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98]">
+              <ArrowLeft className="w-4 h-4" />
               Back to courses
             </Link>
           </div>
@@ -204,12 +211,12 @@ const CourseDetailPage = () => {
   const stats = getTotalStats()
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white font-sans">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Link to="/courses" className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#2563EB] mb-6">
-          <ArrowLeft className="w-4 h-4" />
+        <Link to="/courses" className="animate-fade-in-up group inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#2563EB] mb-6 transition-colors duration-200" style={{ animationDelay: '100ms' }}>
+          <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
           Back to courses
         </Link>
 
@@ -262,10 +269,10 @@ const CourseDetailPage = () => {
               </div>
             )}
 
-            <span className="text-xs font-medium text-[#2563EB] mb-2 block">{course.category}</span>
-            <h1 className="text-2xl font-bold text-[#111827] mb-3">{course.title}</h1>
+            <span className={`animate-fade-in-up inline-block bg-[#DBEAFE] text-[#1E3A8A] text-xs font-medium px-3 py-1 rounded-full mb-3`} style={{ animationDelay: '200ms' }}>{course.category}</span>
+            <h1 className="animate-fade-in-up font-serif text-2xl md:text-3xl text-[#1E3A8A] mb-3" style={{ animationDelay: '300ms' }}>{course.title}</h1>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-[#6B7280] mb-6">
+            <div className="animate-fade-in-up flex flex-wrap items-center gap-4 text-sm text-[#6B7280] mb-6" style={{ animationDelay: '400ms' }}>
               <span className="flex items-center gap-1.5">
                 <Users className="w-4 h-4" />
                 {course.studentsEnrolled?.length || 0} students
@@ -288,31 +295,27 @@ const CourseDetailPage = () => {
               )}
             </div>
 
-            <p className="text-[#6B7280] text-sm leading-relaxed mb-8">{course.description}</p>
+            <p className="animate-fade-in-up text-[#6B7280] text-sm leading-relaxed mb-8" style={{ animationDelay: '500ms' }}>{course.description}</p>
 
             {/* Course Content / Sections */}
             {course.sections?.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold text-[#111827] mb-4">
+              <div ref={sectionsRef}>
+                <h2 className="font-serif text-xl text-[#1E3A8A] mb-4">
                   Course Content
-                  <span className="text-sm font-normal text-[#6B7280] ml-2">
+                  <span className="text-sm font-normal font-sans text-[#6B7280] ml-2">
                     {course.sections.length} sections · {stats.lessons} lessons
                   </span>
                 </h2>
 
-                <div className="border border-[#E5E7EB] rounded-lg overflow-hidden">
+                <div className="border border-[#E5E7EB] rounded-xl overflow-hidden">
                   {course.sections.map((section, sIdx) => (
-                    <div key={sIdx} className="border-b border-[#E5E7EB] last:border-b-0">
+                    <div key={sIdx} className={`border-b border-[#E5E7EB] last:border-b-0 reveal-on-scroll ${sectionsInView ? 'revealed' : ''}`} style={{ transitionDelay: `${sIdx * 60}ms` }}>
                       <button
                         onClick={() => toggleSection(sIdx)}
                         className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#F9FAFB] transition-colors cursor-pointer"
                       >
                         <div className="flex items-center gap-2">
-                          {openSections[sIdx] ? (
-                            <ChevronDown className="w-4 h-4 text-[#6B7280]" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4 text-[#6B7280]" />
-                          )}
+                          <ChevronDown className={`w-4 h-4 text-[#6B7280] transition-transform duration-200 ${openSections[sIdx] ? 'rotate-0' : '-rotate-90'}`} />
                           <span className="text-sm font-medium text-[#111827]">{section.title}</span>
                         </div>
                         <span className="text-xs text-[#6B7280]">
@@ -327,9 +330,9 @@ const CourseDetailPage = () => {
                               key={lIdx}
                               onClick={() => handleLessonClick(lesson)}
                               disabled={!canAccessContent}
-                              className={`w-full flex items-center justify-between py-2 px-3 rounded transition-colors ${
+                              className={`w-full flex items-center justify-between py-2 px-3 rounded transition-all duration-200 ${
                                 canAccessContent
-                                  ? `cursor-pointer hover:bg-[#DBEAFE] ${activeLesson?._id === lesson._id ? "bg-[#DBEAFE]" : ""}`
+                                  ? `cursor-pointer hover:bg-[#DBEAFE] ${activeLesson?._id === lesson._id ? "bg-[#DBEAFE] border-l-2 border-l-[#2563EB]" : ""}`
                                   : "cursor-not-allowed opacity-60"
                               }`}
                             >
@@ -397,8 +400,8 @@ const CourseDetailPage = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="border border-[#E5E7EB] rounded-lg p-6 sticky top-8">
+          <div ref={sidebarRef} className={`lg:col-span-1 reveal-on-scroll ${sidebarInView ? 'revealed' : ''}`}>
+            <div className="border border-[#E5E7EB] rounded-xl p-6 sticky top-8">
               {!isEnrolled && (
                 <p className="text-2xl font-bold text-[#111827] mb-4">
                   {course.price === 0 ? "Free" : `$${course.price}`}
@@ -418,9 +421,9 @@ const CourseDetailPage = () => {
                     <span className="text-sm font-medium text-[#111827]">Your Progress</span>
                     <span className="text-sm font-medium text-[#2563EB]">{progress.progressPercentage}%</span>
                   </div>
-                  <div className="w-full h-2 bg-[#E5E7EB] rounded-full overflow-hidden">
+                  <div className="w-full h-2.5 bg-[#E5E7EB] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#2563EB] rounded-full transition-all duration-300"
+                      className="h-full bg-[#2563EB] rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${progress.progressPercentage}%` }}
                     />
                   </div>
@@ -432,7 +435,7 @@ const CourseDetailPage = () => {
                   {progress.progressPercentage >= 95 && (
                     <button
                       onClick={handleDownloadCertificate}
-                      className="w-full mt-3 flex items-center justify-center gap-2 bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors cursor-pointer"
+                      className="w-full mt-3 flex items-center justify-center gap-2 bg-[#1E3A8A] text-white py-2.5 rounded-lg font-medium hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
                       Download Certificate
@@ -445,7 +448,7 @@ const CourseDetailPage = () => {
                     <button
                       onClick={handleEnroll}
                       disabled={enrolling}
-                      className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors disabled:opacity-70 cursor-pointer"
+                      className="w-full bg-[#1E3A8A] text-white py-2.5 rounded-lg font-medium hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] disabled:opacity-70 cursor-pointer"
                     >
                       {enrolling ? (
                         <span className="flex items-center justify-center gap-2">
@@ -459,7 +462,7 @@ const CourseDetailPage = () => {
                   ) : (
                     <button
                       onClick={() => setShowPaymentModal(true)}
-                      className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors cursor-pointer"
+                      className="w-full bg-[#1E3A8A] text-white py-2.5 rounded-lg font-medium hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] cursor-pointer"
                     >
                       Buy for ${course.price}
                     </button>
@@ -469,7 +472,7 @@ const CourseDetailPage = () => {
                 <div className="mb-4">
                   <Link
                     to="/login"
-                    className="block w-full text-center bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors"
+                    className="block w-full text-center bg-[#1E3A8A] text-white py-2.5 rounded-lg font-medium hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98]"
                   >
                     Log in to Enroll
                   </Link>
@@ -479,7 +482,7 @@ const CourseDetailPage = () => {
               {/* Instructor */}
               {course.instructor && (
                 <div className="border-t border-[#E5E7EB] pt-4 mt-4">
-                  <h3 className="text-sm font-semibold text-[#111827] mb-3">Instructor</h3>
+                  <h3 className="font-serif text-sm text-[#1E3A8A] mb-3">Instructor</h3>
                   <div className="flex items-center gap-3 mb-3">
                     {course.instructor.profileImage ? (
                       <img
@@ -502,7 +505,7 @@ const CourseDetailPage = () => {
                   {course.instructor.expertise?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {course.instructor.expertise.map((skill, i) => (
-                        <span key={i} className="text-xs bg-[#DBEAFE] text-[#1E3A8A] px-2 py-0.5 rounded">
+                        <span key={i} className="text-xs bg-[#DBEAFE] text-[#1E3A8A] px-2.5 py-0.5 rounded-full">
                           {skill}
                         </span>
                       ))}
