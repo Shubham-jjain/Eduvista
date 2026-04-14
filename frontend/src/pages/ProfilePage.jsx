@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import { User, Mail, Camera, Pencil, Save, X, Loader2, Tag, Lock, Eye, EyeOff, ChevronDown, ChevronUp, Check } from "lucide-react"
+import { User, Mail, Camera, Pencil, Save, X, Loader2, Tag, Lock, Eye, EyeOff, ChevronDown, Check } from "lucide-react"
 import { setUser } from "../features/auth/authSlice"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
@@ -160,35 +160,42 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white font-sans">
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-6 py-12">
+        <h1 className="animate-fade-in-up font-serif text-3xl md:text-4xl text-[#1E3A8A] mb-2" style={{ animationDelay: '100ms' }}>
+          Your Profile
+        </h1>
+        <p className="animate-fade-in-up text-[#6B7280] text-lg mb-8" style={{ animationDelay: '200ms' }}>
+          Manage your account settings and personal information
+        </p>
+
         {success && (
-          <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm">
+          <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm animate-fade-in">
             {success}
           </div>
         )}
         {error && (
-          <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+          <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm animate-fade-in">
             {error}
           </div>
         )}
 
-        <div className="border border-[#E5E7EB] rounded-lg p-8">
+        <div className="animate-fade-in-up border border-[#E5E7EB] rounded-xl p-8" style={{ animationDelay: '300ms' }}>
           {/* Profile Image + Basic Info */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8">
             {/* Image Section */}
             <div className="flex flex-col items-center gap-3">
-              <div className="relative">
+              <div className="relative group">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
                     alt={user.name}
-                    className="w-32 h-32 rounded-full object-cover border-2 border-[#E5E7EB]"
+                    className="w-32 h-32 rounded-full object-cover border-2 border-[#E5E7EB] transition-all duration-300 group-hover:border-[#2563EB]/30"
                   />
                 ) : (
-                  <div className="w-32 h-32 rounded-full bg-[#DBEAFE] flex items-center justify-center border-2 border-[#E5E7EB]">
+                  <div className="w-32 h-32 rounded-full bg-[#DBEAFE] flex items-center justify-center border-2 border-[#E5E7EB] transition-all duration-300 group-hover:border-[#2563EB]/30">
                     <User className="w-12 h-12 text-[#1E3A8A]" />
                   </div>
                 )}
@@ -207,7 +214,7 @@ const ProfilePage = () => {
                   <button
                     onClick={handleImageUpload}
                     disabled={imageLoading}
-                    className="flex items-center gap-1 text-sm font-medium text-white bg-[#2563EB] px-3 py-1.5 rounded-lg hover:bg-[#1E3A8A] transition-colors disabled:opacity-50 cursor-pointer"
+                    className="flex items-center gap-1 text-sm font-medium text-white bg-[#1E3A8A] px-3 py-1.5 rounded-lg hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
                     {imageLoading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -218,7 +225,7 @@ const ProfilePage = () => {
                   </button>
                   <button
                     onClick={handleCancelImage}
-                    className="flex items-center gap-1 text-sm font-medium text-[#6B7280] border border-[#E5E7EB] px-3 py-1.5 rounded-lg hover:bg-[#DBEAFE] transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-sm font-medium text-[#6B7280] border border-[#E5E7EB] px-3 py-1.5 rounded-lg hover:bg-[#DBEAFE] transition-all duration-200 cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                     Cancel
@@ -237,7 +244,7 @@ const ProfilePage = () => {
 
             {/* Name, Email, Role */}
             <div className="flex-1 text-center sm:text-left sm:pt-2">
-              <h1 className="text-2xl font-bold text-[#111827]">{user.name}</h1>
+              <h1 className="font-serif text-2xl text-[#1E3A8A]">{user.name}</h1>
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 text-[#6B7280] text-sm">
                 <Mail className="w-4 h-4" />
                 {user.email}
@@ -262,7 +269,7 @@ const ProfilePage = () => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
                   />
                 </div>
 
@@ -276,7 +283,7 @@ const ProfilePage = () => {
                     rows={4}
                     maxLength={500}
                     placeholder="Tell us about yourself..."
-                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none resize-none"
+                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200 resize-none"
                   />
                   <p className="text-xs text-[#6B7280] mt-1">{bio.length}/500</p>
                 </div>
@@ -290,7 +297,7 @@ const ProfilePage = () => {
                     value={expertise}
                     onChange={(e) => setExpertise(e.target.value)}
                     placeholder="e.g. React, Node.js, Python"
-                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
                   />
                   <p className="text-xs text-[#6B7280] mt-1">Separate skills with commas</p>
                 </div>
@@ -300,7 +307,7 @@ const ProfilePage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 bg-[#2563EB] text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-[#1E3A8A] transition-colors disabled:opacity-50 cursor-pointer"
+                  className="flex items-center gap-2 bg-[#1E3A8A] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -312,7 +319,7 @@ const ProfilePage = () => {
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="flex items-center gap-2 border border-[#E5E7EB] text-[#6B7280] px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-[#DBEAFE] transition-colors cursor-pointer"
+                  className="flex items-center gap-2 border border-[#E5E7EB] text-[#6B7280] px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-[#DBEAFE] transition-all duration-200 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                   Cancel
@@ -322,10 +329,10 @@ const ProfilePage = () => {
           ) : (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-[#111827]">About</h2>
+                <h2 className="font-serif text-lg text-[#1E3A8A]">About</h2>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:text-[#1E3A8A] transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:text-[#1E3A8A] transition-all duration-200 cursor-pointer"
                 >
                   <Pencil className="w-4 h-4" />
                   Edit Profile
@@ -364,35 +371,31 @@ const ProfilePage = () => {
         </div>
 
         {/* Change Password Section */}
-        <div className="border border-[#E5E7EB] rounded-lg mt-6">
+        <div className="animate-fade-in-up border border-[#E5E7EB] rounded-xl mt-6" style={{ animationDelay: '400ms' }}>
           <button
             onClick={() => {
               setShowPasswordSection(!showPasswordSection)
               setPasswordError(null)
               setPasswordSuccess(null)
             }}
-            className="w-full flex items-center justify-between p-6 cursor-pointer"
+            className="w-full flex items-center justify-between p-6 hover:bg-[#F9FAFB] transition-colors duration-200 rounded-xl cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-[#6B7280]" />
-              <h2 className="text-lg font-bold text-[#111827]">Change Password</h2>
+              <h2 className="font-serif text-lg text-[#1E3A8A]">Change Password</h2>
             </div>
-            {showPasswordSection ? (
-              <ChevronUp className="w-5 h-5 text-[#6B7280]" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-[#6B7280]" />
-            )}
+            <ChevronDown className={`w-5 h-5 text-[#6B7280] transition-transform duration-200 ${showPasswordSection ? 'rotate-180' : ''}`} />
           </button>
 
           {showPasswordSection && (
             <div className="px-6 pb-6">
               {passwordSuccess && (
-                <div className="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm">
+                <div className="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-sm animate-fade-in">
                   {passwordSuccess}
                 </div>
               )}
               {passwordError && (
-                <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm animate-fade-in">
                   {passwordError}
                 </div>
               )}
@@ -410,7 +413,7 @@ const ProfilePage = () => {
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
                       required
-                      className="w-full pl-10 pr-10 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                      className="w-full pl-10 pr-10 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
                     />
                     <button
                       type="button"
@@ -434,7 +437,7 @@ const ProfilePage = () => {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
-                      className="w-full pl-10 pr-10 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                      className="w-full pl-10 pr-10 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
                     />
                     <button
                       type="button"
@@ -476,7 +479,7 @@ const ProfilePage = () => {
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
                       required
-                      className="w-full pl-10 pr-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none"
+                      className="w-full pl-10 pr-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -484,7 +487,7 @@ const ProfilePage = () => {
                 <button
                   type="submit"
                   disabled={passwordLoading}
-                  className="flex items-center gap-2 bg-[#2563EB] text-white px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-[#1E3A8A] transition-colors disabled:opacity-50 cursor-pointer"
+                  className="flex items-center gap-2 bg-[#1E3A8A] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   {passwordLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

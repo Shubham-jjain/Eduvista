@@ -71,10 +71,11 @@ const QuizPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-white font-sans">
                 <Navbar />
-                <div className="flex items-center justify-center py-32">
-                    <Loader2 className="w-8 h-8 text-[#2563EB] animate-spin" />
+                <div className="flex flex-col items-center justify-center py-32 animate-fade-in">
+                    <Loader2 className="w-8 h-8 text-[#2563EB] animate-spin mb-3" />
+                    <p className="text-sm text-[#6B7280]">Loading quiz...</p>
                 </div>
             </div>
         );
@@ -82,12 +83,15 @@ const QuizPage = () => {
 
     if (error || !quiz) {
         return (
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-white font-sans">
                 <Navbar />
                 <div className="max-w-3xl mx-auto px-6 py-12">
-                    <p className="text-[#6B7280] text-center">{error || "Quiz not found"}</p>
-                    <div className="text-center mt-4">
-                        <Link to={`/courses/${courseId}`} className="text-[#2563EB] hover:underline text-sm">
+                    <div className="text-center py-20 animate-fade-in">
+                        <FileText className="w-16 h-16 text-[#DBEAFE] mx-auto mb-4" />
+                        <p className="text-lg font-medium text-[#111827] mb-1">{error || "Quiz not found"}</p>
+                        <p className="text-sm text-[#6B7280] mb-6">The quiz you're looking for may not be available</p>
+                        <Link to={`/courses/${courseId}`} className="inline-flex items-center gap-2 bg-[#1E3A8A] text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98]">
+                            <ArrowLeft className="w-4 h-4" />
                             Back to Course
                         </Link>
                     </div>
@@ -99,16 +103,16 @@ const QuizPage = () => {
     // Results view after submission
     if (result) {
         return (
-            <div className="min-h-screen bg-white">
+            <div className="min-h-screen bg-white font-sans">
                 <Navbar />
                 <div className="max-w-3xl mx-auto px-6 py-8">
-                    <Link to={`/courses/${courseId}`} className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#2563EB] mb-6">
-                        <ArrowLeft className="w-4 h-4" />
+                    <Link to={`/courses/${courseId}`} className="animate-fade-in-up group inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#2563EB] mb-6 transition-colors duration-200" style={{ animationDelay: '100ms' }}>
+                        <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
                         Back to Course
                     </Link>
 
                     {/* Score summary */}
-                    <div className={`rounded-lg p-6 mb-8 ${result.passed ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
+                    <div className={`animate-fade-in-up rounded-xl p-6 mb-8 ${result.passed ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`} style={{ animationDelay: '200ms' }}>
                         <div className="flex items-center gap-3 mb-2">
                             {result.passed ? (
                                 <CheckCircle className="w-8 h-8 text-green-600" />
@@ -116,10 +120,10 @@ const QuizPage = () => {
                                 <XCircle className="w-8 h-8 text-red-500" />
                             )}
                             <div>
-                                <h2 className="text-xl font-bold text-[#111827]">
+                                <h2 className="font-serif text-xl text-[#111827]">
                                     {result.passed ? "Quiz Passed!" : "Quiz Not Passed"}
                                 </h2>
-                                <p className="text-[#6B7280]">{quiz.sectionTitle}</p>
+                                <p className="text-[#6B7280] text-sm">{quiz.sectionTitle}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-6 mt-4">
@@ -139,12 +143,12 @@ const QuizPage = () => {
                     </div>
 
                     {/* Per-question breakdown */}
-                    <h3 className="text-lg font-semibold text-[#1E3A8A] mb-4">Question Breakdown</h3>
+                    <h3 className="animate-fade-in-up font-serif text-lg text-[#1E3A8A] mb-4" style={{ animationDelay: '300ms' }}>Question Breakdown</h3>
                     <div className="space-y-4 mb-8">
                         {quiz.questions.map((q, idx) => {
                             const answer = result.answers.find((a) => a.questionIndex === idx);
                             return (
-                                <div key={idx} className="border border-[#E5E7EB] rounded-lg p-4">
+                                <div key={idx} className="animate-fade-in-up border border-[#E5E7EB] rounded-xl p-4" style={{ animationDelay: `${350 + idx * 60}ms` }}>
                                     <div className="flex items-start gap-2 mb-3">
                                         {answer?.isCorrect ? (
                                             <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
@@ -183,11 +187,11 @@ const QuizPage = () => {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="flex items-center gap-3">
-                        <button onClick={handleRetake} className="bg-[#2563EB] text-white px-5 py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors">
+                    <div className="animate-fade-in-up flex items-center gap-3" style={{ animationDelay: '500ms' }}>
+                        <button onClick={handleRetake} className="bg-[#1E3A8A] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#2563EB] transition-all duration-300 active:scale-[0.98] cursor-pointer">
                             Retake Quiz
                         </button>
-                        <Link to={`/courses/${courseId}`} className="border border-[#E5E7EB] text-[#6B7280] px-5 py-2.5 rounded-lg hover:text-[#2563EB] hover:border-[#2563EB] transition-colors">
+                        <Link to={`/courses/${courseId}`} className="border border-[#E5E7EB] text-[#6B7280] px-5 py-2.5 rounded-lg text-sm font-medium hover:text-[#2563EB] hover:border-[#2563EB] transition-all duration-200">
                             Back to Course
                         </Link>
                     </div>
@@ -198,36 +202,36 @@ const QuizPage = () => {
 
     // Quiz-taking view
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white font-sans">
             <Navbar />
             <div className="max-w-3xl mx-auto px-6 py-8">
-                <Link to={`/courses/${courseId}`} className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#2563EB] mb-6">
-                    <ArrowLeft className="w-4 h-4" />
+                <Link to={`/courses/${courseId}`} className="animate-fade-in-up group inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#2563EB] mb-6 transition-colors duration-200" style={{ animationDelay: '100ms' }}>
+                    <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
                     Back to Course
                 </Link>
 
                 {/* Header */}
                 <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="animate-fade-in-up flex items-center gap-2 mb-1" style={{ animationDelay: '200ms' }}>
                         <FileText className="w-5 h-5 text-[#2563EB]" />
-                        <h1 className="text-xl font-bold text-[#1E3A8A]">{quiz.sectionTitle} — Quiz</h1>
+                        <h1 className="font-serif text-xl md:text-2xl text-[#1E3A8A]">{quiz.sectionTitle} — Quiz</h1>
                     </div>
-                    <p className="text-sm text-[#6B7280]">
+                    <p className="animate-fade-in-up text-sm text-[#6B7280]" style={{ animationDelay: '300ms' }}>
                         {quiz.totalQuestions} questions · Pass mark: {quiz.passPercentage}%
                     </p>
                 </div>
 
                 {/* Previous attempt banner */}
                 {previousAttempt && (
-                    <div className={`rounded-lg px-4 py-3 mb-6 text-sm ${previousAttempt.passed ? "bg-green-50 text-green-700 border border-green-200" : "bg-yellow-50 text-yellow-700 border border-yellow-200"}`}>
+                    <div className={`animate-fade-in rounded-xl px-4 py-3 mb-6 text-sm ${previousAttempt.passed ? "bg-green-50 text-green-700 border border-green-200" : "bg-yellow-50 text-yellow-700 border border-yellow-200"}`}>
                         Previous attempt: {previousAttempt.percentage}% ({previousAttempt.score}/{previousAttempt.totalQuestions}) — {previousAttempt.passed ? "Passed" : "Not passed"}
                     </div>
                 )}
 
                 {/* Questions */}
                 <div className="space-y-6 mb-8">
-                    {quiz.questions.map((q) => (
-                        <div key={q.index} className="border border-[#E5E7EB] rounded-lg p-5">
+                    {quiz.questions.map((q, qIdx) => (
+                        <div key={q.index} className="animate-fade-in-up border border-[#E5E7EB] rounded-xl p-5" style={{ animationDelay: `${350 + qIdx * 80}ms` }}>
                             <p className="text-sm font-medium text-[#111827] mb-3">
                                 {q.index + 1}. {q.question}
                             </p>
@@ -238,7 +242,7 @@ const QuizPage = () => {
                                         <button
                                             key={optIdx}
                                             onClick={() => handleSelectAnswer(q.index, optIdx)}
-                                            className={`w-full text-left flex items-center gap-3 px-4 py-2.5 rounded-lg border text-sm transition-colors ${
+                                            className={`w-full text-left flex items-center gap-3 px-4 py-2.5 rounded-lg border text-sm transition-all duration-200 cursor-pointer ${
                                                 isSelected
                                                     ? "border-[#2563EB] bg-[#DBEAFE] text-[#2563EB] font-medium"
                                                     : "border-[#E5E7EB] text-[#111827] hover:border-[#2563EB] hover:bg-[#DBEAFE]/50"
@@ -262,11 +266,12 @@ const QuizPage = () => {
                 <button
                     onClick={handleSubmit}
                     disabled={!allAnswered || submitting}
-                    className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${
+                    className={`animate-fade-in-up px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 cursor-pointer ${
                         allAnswered && !submitting
-                            ? "bg-[#2563EB] text-white hover:bg-[#1E3A8A]"
+                            ? "bg-[#1E3A8A] text-white hover:bg-[#2563EB] active:scale-[0.98]"
                             : "bg-[#E5E7EB] text-[#6B7280] cursor-not-allowed"
                     }`}
+                    style={{ animationDelay: '600ms' }}
                 >
                     {submitting ? (
                         <span className="flex items-center gap-2">
