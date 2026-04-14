@@ -108,7 +108,7 @@ const InstructorDashboard = () => {
               <tbody>
                 {performance.map((course) => (
                   <tr key={course.courseId} className="border-b border-[#E5E7EB] last:border-0">
-                    <td className="py-3 text-[#111827] font-medium max-w-[200px] truncate">
+                    <td className="py-3 text-[#111827] font-medium max-w-50 truncate">
                       {course.title}
                     </td>
                     <td className="py-3 text-[#111827]">{course.enrolled}</td>
@@ -150,7 +150,7 @@ const InstructorDashboard = () => {
             <div className="space-y-4">
               {reviews.map((review) => (
                 <div key={review._id} className="flex gap-3 pb-4 border-b border-[#E5E7EB] last:border-0">
-                  <div className="w-8 h-8 rounded-full bg-[#DBEAFE] flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
                     {review.user?.profileImage ? (
                       <img
                         src={review.user.profileImage}

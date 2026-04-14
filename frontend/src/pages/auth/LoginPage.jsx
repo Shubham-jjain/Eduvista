@@ -40,18 +40,70 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex">
-      {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#1E3A8A] items-center justify-center p-12">
-        <div className="max-w-md text-white">
-          <div className="flex items-center gap-3 mb-8">
-            <BookOpen className="w-10 h-10" />
-            <span className="text-3xl font-bold">EduVista</span>
+    <div className="min-h-screen bg-white flex font-sans">
+      {/* Left Panel — Branding with decorative geometry */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#1E3A8A] items-center justify-center p-12 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute inset-0" aria-hidden="true">
+          <div
+            className="animate-fade-in absolute top-16 right-16 w-64 h-64 rounded-full bg-white/5"
+            style={{ animationDelay: '200ms' }}
+          />
+          <div
+            className="animate-fade-in animate-spin-slow absolute -bottom-10 -left-10 w-40 h-40 rounded-full border-2 border-dashed border-white/15"
+            style={{ animationDelay: '400ms', animationDuration: '0.6s, 20s' }}
+          />
+          <div
+            className="animate-fade-in animate-float absolute top-1/4 right-1/4 w-10 h-10 rounded-full bg-[#DBEAFE]/20"
+            style={{ animationDelay: '500ms', animationDuration: '0.6s, 6s' }}
+          />
+          <div
+            className="animate-fade-in absolute bottom-1/3 right-20 w-4 h-4 rounded-full bg-white/20"
+            style={{ animationDelay: '600ms' }}
+          />
+          <div
+            className="animate-fade-in absolute top-1/3 left-16 w-16 h-0.5 bg-white/10 rotate-[-25deg]"
+            style={{ animationDelay: '700ms' }}
+          />
+          <div
+            className="animate-fade-in absolute top-[38%] left-20 w-10 h-0.5 bg-white/10 rotate-[-25deg]"
+            style={{ animationDelay: '750ms' }}
+          />
+        </div>
+
+        {/* Panel content */}
+        <div className="max-w-md text-white relative z-10">
+          <div
+            className="animate-slide-in-left flex items-center gap-3 mb-10"
+            style={{ animationDelay: '100ms' }}
+          >
+            <BookOpen className="w-9 h-9" />
+            <span className="font-serif text-2xl">EduVista</span>
           </div>
-          <h1 className="text-4xl font-bold mb-4">Welcome back!</h1>
-          <p className="text-lg text-blue-200">
+          <h1
+            className="animate-slide-in-left font-serif text-4xl xl:text-5xl leading-tight mb-5"
+            style={{ animationDelay: '250ms' }}
+          >
+            Welcome back!
+          </h1>
+          <p
+            className="animate-slide-in-left text-lg text-[#BFDBFE] leading-relaxed"
+            style={{ animationDelay: '400ms' }}
+          >
             Continue your learning journey. Access thousands of courses from expert instructors.
           </p>
+          {/* Trust stats */}
+          <div
+            className="animate-slide-in-left flex gap-8 mt-12 pt-8 border-t border-white/15"
+            style={{ animationDelay: '550ms' }}
+          >
+            {[{ value: '500+', label: 'Courses' }, { value: '25K+', label: 'Students' }, { value: '120+', label: 'Instructors' }].map((stat) => (
+              <div key={stat.label}>
+                <p className="font-serif text-2xl text-white">{stat.value}</p>
+                <p className="text-xs text-[#BFDBFE] uppercase tracking-wider mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -59,76 +111,96 @@ const LoginPage = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <BookOpen className="w-8 h-8 text-[#1E3A8A]" />
-            <span className="text-2xl font-bold text-[#1E3A8A]">EduVista</span>
+          <div
+            className="animate-fade-in flex items-center gap-2 mb-10 lg:hidden"
+            style={{ animationDelay: '100ms' }}
+          >
+            <BookOpen className="w-7 h-7 text-[#1E3A8A]" />
+            <span className="font-serif text-xl text-[#1E3A8A]">EduVista</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-[#111827] mb-1">Sign in to your account</h2>
-          <p className="text-[#6B7280] mb-8">
-            Don't have an account?{' '}
+          <h2
+            className="animate-fade-in-up font-serif text-3xl text-[#1E3A8A] mb-2"
+            style={{ animationDelay: '100ms' }}
+          >
+            Sign in
+          </h2>
+          <p
+            className="animate-fade-in-up text-[#6B7280] mb-8"
+            style={{ animationDelay: '200ms' }}
+          >
+            Don&apos;t have an account?{' '}
             <Link to="/register" className="text-[#2563EB] font-medium hover:underline">
               Sign up
             </Link>
           </p>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+            <div className="mb-5 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm animate-fade-in">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit}>
             {/* Email */}
-            <div className="mb-5">
+            <div
+              className="animate-fade-in-up mb-5"
+              style={{ animationDelay: '300ms' }}
+            >
               <label className="block text-sm font-medium text-[#111827] mb-1.5">
                 Email address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
+              <div className="relative group">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#6B7280] transition-colors group-focus-within:text-[#2563EB]" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full pl-11 pr-4 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                  className="w-full pl-11 pr-4 py-3 border border-[#E5E7EB] rounded-lg text-[#111827] placeholder-[#9CA3AF] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div className="mb-5">
+            <div
+              className="animate-fade-in-up mb-5"
+              style={{ animationDelay: '400ms' }}
+            >
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-sm font-medium text-[#111827]">
                   Password
                 </label>
-                <a href="/forgot-password" className="text-sm text-[#2563EB] hover:underline">
+                <a href="/forgot-password" className="text-xs text-[#2563EB] hover:underline">
                   Forgot password?
                 </a>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
+              <div className="relative group">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#6B7280] transition-colors group-focus-within:text-[#2563EB]" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   required
-                  className="w-full pl-11 pr-11 py-2.5 border border-[#E5E7EB] rounded-lg text-[#111827] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+                  className="w-full pl-11 pr-11 py-3 border border-[#E5E7EB] rounded-lg text-[#111827] placeholder-[#9CA3AF] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all duration-200"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#111827]"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#111827] transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
                 </button>
               </div>
             </div>
 
             {/* Remember Me */}
-            <div className="flex items-center mb-6">
+            <div
+              className="animate-fade-in-up flex items-center mb-7"
+              style={{ animationDelay: '500ms' }}
+            >
               <input
                 type="checkbox"
                 id="remember"
@@ -140,13 +212,26 @@ const LoginPage = () => {
             </div>
 
             {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg font-medium hover:bg-[#1E3A8A] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            <div
+              className="animate-fade-in-up"
+              style={{ animationDelay: '600ms' }}
             >
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#1E3A8A] text-white py-3 rounded-lg font-semibold text-sm hover:bg-[#2563EB] transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : 'Sign In'}
+              </button>
+            </div>
           </form>
         </div>
       </div>

@@ -163,7 +163,7 @@ const StudentDashboard = () => {
                 <tbody>
                   {quizzes.map((quiz) => (
                     <tr key={quiz._id} className="border-b border-[#E5E7EB] last:border-0">
-                      <td className="py-3 text-[#111827] max-w-[150px] truncate">{quiz.course?.title}</td>
+                      <td className="py-3 text-[#111827] max-w-37.5 truncate">{quiz.course?.title}</td>
                       <td className="py-3 text-[#111827]">{quiz.percentage}%</td>
                       <td className="py-3">
                         <span
