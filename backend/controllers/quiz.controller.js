@@ -12,7 +12,10 @@ export const getQuiz = async (req, res) => {
             return res.status(404).json({ message: "Course not found" });
         }
 
-        if (!course.studentsEnrolled.includes(userId)) {
+        const isEnrolled = course.studentsEnrolled.some(id => id.toString() === userId);
+        const isOwner = course.instructor.toString() === userId;
+        const isAdmin = req.user.role === "admin";
+        if (!isEnrolled && !isOwner && !isAdmin) {
             return res.status(403).json({ message: "Not enrolled in this course" });
         }
 
@@ -57,7 +60,7 @@ export const submitQuiz = async (req, res) => {
             return res.status(404).json({ message: "Course not found" });
         }
 
-        if (!course.studentsEnrolled.includes(userId)) {
+        if (!course.studentsEnrolled.some(id => id.toString() === userId)) {
             return res.status(403).json({ message: "Not enrolled in this course" });
         }
 

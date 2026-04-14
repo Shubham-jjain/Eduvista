@@ -50,7 +50,7 @@ export const getMyCourses = async (req, res) => {
     }
 };
 
-// Returns a single course by ID with full details including sections and instructor info
+// Returns a single course by ID; strips lesson videoUrls for users without content access
 export const getCourseById = async (req, res) => {
     try {
         const course = await Course.findById(req.params.id)
@@ -58,6 +58,23 @@ export const getCourseById = async (req, res) => {
 
         if (!course) {
             return res.status(404).json({ message: "Course not found" });
+        }
+
+        const userId = req.user?.userId;
+        const role = req.user?.role;
+        const isEnrolled = userId && course.studentsEnrolled.some(id => id.toString() === userId);
+        const isOwner = userId && course.instructor._id.toString() === userId;
+        const isAdmin = role === "admin";
+        const canAccessContent = isEnrolled || isOwner || isAdmin;
+
+        // Strip videoUrls from lessons for users who cannot access course content
+        if (!canAccessContent) {
+            const courseObj = course.toObject();
+            courseObj.sections = courseObj.sections.map(section => ({
+                ...section,
+                lessons: section.lessons.map(({ videoUrl, ...lesson }) => lesson),
+            }));
+            return res.status(200).json({ course: courseObj });
         }
 
         res.status(200).json({ course });

@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import { authMiddleware, optionalAuthMiddleware } from "../middleware/authMiddleware.js";
 import { roleMiddleware } from "../middleware/roleMiddleware.js";
 import upload from "../middleware/upload.js";
 import { getAllCourses, getMyCourses, getCourseById, createCourse, updateCourse, deleteCourse } from "../controllers/course.controller.js";
@@ -12,8 +12,8 @@ router.get("/my-courses", authMiddleware, getMyCourses);
 // GET / — returns all published courses with optional filters
 router.get("/", getAllCourses);
 
-// GET /:id — returns a single course with full details
-router.get("/:id", getCourseById);
+// GET /:id — returns a single course with full details (videoUrls stripped for non-enrolled)
+router.get("/:id", optionalAuthMiddleware, getCourseById);
 
 // POST / — creates a new course (instructor only)
 router.post("/", authMiddleware, roleMiddleware(["instructor"]), upload.single("thumbnail"), createCourse);

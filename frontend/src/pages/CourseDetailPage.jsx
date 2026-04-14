@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, ChevronRight, PlayCircle, FileText, ArrowLeft, X, CheckCircle, Download } from "lucide-react"
+import { BookOpen, Users, Star, Loader2, Clock, ChevronDown, ChevronRight, PlayCircle, FileText, ArrowLeft, X, CheckCircle, Download, Lock } from "lucide-react"
 import API from "../api/axios"
 import Navbar from "../components/Navbar"
 import VideoPlayer from "../components/VideoPlayer"
@@ -18,6 +18,7 @@ const CourseDetailPage = () => {
   const [openSections, setOpenSections] = useState({})
   const [activeLesson, setActiveLesson] = useState(null)
   const [isEnrolled, setIsEnrolled] = useState(false)
+  const [canAccessContent, setCanAccessContent] = useState(false)
   const [progress, setProgress] = useState(null)
   const [markingComplete, setMarkingComplete] = useState(false)
   const [quizAttempts, setQuizAttempts] = useState({})
@@ -37,8 +38,15 @@ const CourseDetailPage = () => {
       const courseData = res.data.course
       setCourse(courseData)
 
-      if (user && user.role === "student" && courseData.studentsEnrolled?.includes(user._id)) {
-        setIsEnrolled(true)
+      const instructorId = courseData.instructor?._id || courseData.instructor
+      const enrolled = user && user.role === "student" && courseData.studentsEnrolled?.some(sid => sid.toString() === user._id.toString())
+      const isOwner = user && instructorId?.toString() === user._id?.toString()
+      const isAdmin = user && user.role === "admin"
+
+      if (enrolled) setIsEnrolled(true)
+      if (enrolled || isOwner || isAdmin) setCanAccessContent(true)
+
+      if (enrolled) {
         try {
           const progressRes = await API.get(`/progress/${id}`)
           setProgress(progressRes.data.progress)
@@ -128,8 +136,9 @@ const CourseDetailPage = () => {
     }
   }
 
-  // Updates last accessed lesson when a lesson is clicked
+  // Updates last accessed lesson when a lesson is clicked (only if user can access content)
   const handleLessonClick = async (lesson) => {
+    if (!canAccessContent) return
     setActiveLesson(lesson)
     if (isEnrolled) {
       try {
@@ -311,18 +320,23 @@ const CourseDetailPage = () => {
                         </span>
                       </button>
 
-                      {openSections[sIdx] && section.lessons?.length > 0 && (
+                      {openSections[sIdx] && (section.lessons?.length > 0 || section.quiz?.questions?.length > 0) && (
                         <div className="bg-[#F9FAFB] px-4 pb-3">
-                          {section.lessons.map((lesson, lIdx) => (
+                          {section.lessons?.map((lesson, lIdx) => (
                             <button
                               key={lIdx}
                               onClick={() => handleLessonClick(lesson)}
-                              className={`w-full flex items-center justify-between py-2 px-3 rounded hover:bg-[#DBEAFE] transition-colors cursor-pointer ${
-                                activeLesson?._id === lesson._id ? "bg-[#DBEAFE]" : ""
+                              disabled={!canAccessContent}
+                              className={`w-full flex items-center justify-between py-2 px-3 rounded transition-colors ${
+                                canAccessContent
+                                  ? `cursor-pointer hover:bg-[#DBEAFE] ${activeLesson?._id === lesson._id ? "bg-[#DBEAFE]" : ""}`
+                                  : "cursor-not-allowed opacity-60"
                               }`}
                             >
                               <div className="flex items-center gap-2">
-                                {isEnrolled && isLessonCompleted(lesson._id) ? (
+                                {!canAccessContent ? (
+                                  <Lock className="w-3.5 h-3.5 text-[#6B7280]" />
+                                ) : isEnrolled && isLessonCompleted(lesson._id) ? (
                                   <CheckCircle className="w-3.5 h-3.5 text-green-500" />
                                 ) : (
                                   <PlayCircle className={`w-3.5 h-3.5 ${activeLesson?._id === lesson._id ? "text-[#2563EB]" : "text-[#6B7280]"}`} />
@@ -385,9 +399,11 @@ const CourseDetailPage = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="border border-[#E5E7EB] rounded-lg p-6 sticky top-8">
-              <p className="text-2xl font-bold text-[#111827] mb-4">
-                {course.price === 0 ? "Free" : `$${course.price}`}
-              </p>
+              {!isEnrolled && (
+                <p className="text-2xl font-bold text-[#111827] mb-4">
+                  {course.price === 0 ? "Free" : `$${course.price}`}
+                </p>
+              )}
 
               {course.status === "draft" && (
                 <span className="inline-block text-xs font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 px-2.5 py-1 rounded mb-4">

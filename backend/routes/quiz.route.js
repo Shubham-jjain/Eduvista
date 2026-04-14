@@ -12,6 +12,6 @@ router.post("/submit", authMiddleware, roleMiddleware(["student"]), submitQuiz);
 router.get("/attempt/:courseId/:sectionId", authMiddleware, getQuizAttempt);
 
 // GET /:courseId/:sectionId — returns quiz questions without correct answers
-router.get("/:courseId/:sectionId", authMiddleware, roleMiddleware(["student"]), getQuiz);
+router.get("/:courseId/:sectionId", authMiddleware, getQuiz);
 
 export default router;
